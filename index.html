@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bryan's Password Generator</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --primary: #10b981;
+            --primary-hover: #059669;
+            --secondary: #334155;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 1.6rem;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        select, input[type="number"], input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-size: 1rem;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--primary);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--secondary);
+            margin-top: 12px;
+        }
+
+        .btn-secondary:hover {
+            background-color: #475569;
+        }
+
+        .results {
+            margin-top: 24px;
+            display: none;
+        }
+
+        .pw-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border);
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            font-family: monospace;
+            font-size: 1.05rem;
+        }
+
+        .copy-btn {
+            width: auto;
+            padding: 5px 10px;
+            margin: 0;
+            font-size: 0.8rem;
+            background-color: var(--secondary);
+        }
+
+        .error-msg {
+            color: #f87171;
+            font-size: 0.9rem;
+            margin-top: 8px;
+            display: none;
+        }
+
+        footer {
+            margin-top: 30px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>🔐 Bryan's Password Generator</h1>
+    <p class="subtitle">Genereer veilige wachtwoorden voor werk & privé</p>
+
+    <div class="form-group">
+        <label for="keuze">Kies een optie:</label>
+        <select id="keuze" onchange="toggleOpties()">
+            <option value="1">1 = Zelf samenstellen</option>
+            <option value="2">2 = Snel sterk wachtwoord (16 tekens)</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="aantalWachtwoorden">Hoeveel wachtwoorden wil je tegelijk genereren?</label>
+        <input type="number" id="aantalWachtwoorden" min="1" max="50" value="1">
+    </div>
+
+    <div id="customInputs" class="form-group">
+        <div class="grid-3">
+            <div>
+                <label for="nrLetters">Letters</label>
+                <input type="number" id="nrLetters" min="0" value="8">
+            </div>
+            <div>
+                <label for="nrNumbers">Nummers</label>
+                <input type="number" id="nrNumbers" min="0" value="4">
+            </div>
+            <div>
+                <label for="nrSymbols">Symbolen</label>
+                <input type="number" id="nrSymbols" min="0" value="4">
+            </div>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="website">Website / App naam (voor opslaan):</label>
+        <input type="text" id="website" placeholder="Bijv. Grexx, Genesys of Gmail">
+    </div>
+
+    <p id="errorMsg" class="error-msg"></p>
+    <button onclick="genereerLijst()">Genereer Wachtwoord(en)</button>
+
+    <div id="resultsBox" class="results">
+        <label>Hier zijn je wachtwoorden:</label>
+        <div id="pwList"></div>
+        <button class="btn-secondary" onclick="downloadTxt()">📥 Opslaan als wachtwoorden.txt</button>
+    </div>
+</div>
+
+<footer>
+    © 2026 All rights reserved to Bryan • Vergeet Bryan niet te bedanken &lt;(^_^)&gt;
+</footer>
+
+<script>
+    const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    const numbers = "0123456789".split("");
+    const symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+'];
+
+    let huidigeWachtwoorden = [];
+
+    function toggleOpties() {
+        const keuze = document.getElementById("keuze").value;
+        document.getElementById("customInputs").style.display = (keuze === "1") ? "block" : "none";
+    }
+
+    function randomChoice(arr) {
+        const randomBuffer = new Uint32Array(1);
+        window.crypto.getRandomValues(randomBuffer);
+        return arr[randomBuffer[0] % arr.length];
+    }
+
+    function maakWachtwoord(aantalLetters, aantalNummers, aantalSymbolen) {
+        let placeholder = [];
+        for (let i = 0; i < aantalLetters; i++) placeholder.push(randomChoice(letters));
+        for (let i = 0; i < aantalNummers; i++) placeholder.push(randomChoice(numbers));
+        for (let i = 0; i < aantalSymbolen; i++) placeholder.push(randomChoice(symbols));
+
+        for (let i = placeholder.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [placeholder[i], placeholder[j]] = [placeholder[j], placeholder[i]];
+        }
+        return placeholder.join("");
+    }
+
+    function genereerLijst() {
+        const keuze = document.getElementById("keuze").value;
+        const aantal = parseInt(document.getElementById("aantalWachtwoorden").value);
+        const errorMsg = document.getElementById("errorMsg");
+        const pwList = document.getElementById("pwList");
+        const resultsBox = document.getElementById("resultsBox");
+
+        errorMsg.style.display = "none";
+        pwList.innerHTML = "";
+        huidigeWachtwoorden = [];
+
+        if (isNaN(aantal) || aantal < 1) {
+            errorMsg.textContent = "Voer minstens 1 wachtwoord in...";
+            errorMsg.style.display = "block";
+            return;
+        }
+
+        let nrLetters = parseInt(document.getElementById("nrLetters").value) || 0;
+        let nrNumbers = parseInt(document.getElementById("nrNumbers").value) || 0;
+        let nrSymbols = parseInt(document.getElementById("nrSymbols").value) || 0;
+
+        if (keuze === "1") {
+            if (nrLetters < 0 || nrNumbers < 0 || nrSymbols < 0) {
+                errorMsg.textContent = "Je mag geen negatieve getallen invoeren...";
+                errorMsg.style.display = "block";
+                return;
+            }
+            if (nrLetters + nrNumbers + nrSymbols === 0) {
+                errorMsg.textContent = "Je moet minstens 1 letter, cijfer of symbool typen!";
+                errorMsg.style.display = "block";
+                return;
+            }
+        }
+
+        for (let i = 0; i < aantal; i++) {
+            let ww = "";
+            if (keuze === "1") {
+                ww = maakWachtwoord(nrLetters, nrNumbers, nrSymbols);
+            } else {
+                const totaal = 16;
+                const l = Math.floor(Math.random() * (10 - 6 + 1)) + 6;
+                const n = Math.floor(Math.random() * (5 - 2 + 1)) + 2;
+                const s = totaal - l - n;
+                ww = maakWachtwoord(l, n, s);
+            }
+
+            huidigeWachtwoorden.push(ww);
+
+            const item = document.createElement("div");
+            item.className = "pw-item";
+            item.innerHTML = `
+                <span>${i + 1}. ${ww}</span>
+                <button class="copy-btn" onclick="kopieerTekst('${ww}', this)">Kopieer</button>
+            `;
+            pwList.appendChild(item);
+        }
+
+        resultsBox.style.display = "block";
+    }
+
+    function kopieerTekst(tekst, knop) {
+        navigator.clipboard.writeText(tekst);
+        knop.textContent = "Gekopieerd!";
+        setTimeout(() => knop.textContent = "Kopieer", 1500);
+    }
+
+    function downloadTxt() {
+        const website = document.getElementById("website").value.trim() || "Algemeen";
+        let inhoud = `--- ${website} ---\n`;
+        huidigeWachtwoorden.forEach(ww => inhoud += `${ww}\n`);
+
+        const blob = new Blob([inhoud], { type: "text/plain;charset=utf-8" });
