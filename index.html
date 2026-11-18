@@ -5,17 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bryan's Password Generator</title>
     <style>
-        :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
-            --primary: #10b981;
-            --primary-hover: #059669;
-            --secondary: #334155;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-            --border: #334155;
-        }
-
         * {
             box-sizing: border-box;
             margin: 0;
@@ -24,8 +13,8 @@
         }
 
         body {
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            background-color: #f4f6f8;
+            color: #1f2937;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
@@ -35,13 +24,13 @@
         }
 
         .container {
-            background-color: var(--card-bg);
-            border: 1px solid var(--border);
+            background-color: #ffffff;
+            border: 1px solid #e5e7eb;
             border-radius: 12px;
             padding: 30px;
             width: 100%;
             max-width: 500px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
         }
 
         h1 {
@@ -52,7 +41,7 @@
 
         .subtitle {
             text-align: center;
-            color: var(--text-muted);
+            color: #6b7280;
             font-size: 0.9rem;
             margin-bottom: 24px;
         }
@@ -65,16 +54,17 @@
             display: block;
             margin-bottom: 6px;
             font-size: 0.9rem;
-            color: var(--text-muted);
+            font-weight: 600;
+            color: #374151;
         }
 
         select, input[type="number"], input[type="text"] {
             width: 100%;
             padding: 10px 12px;
             border-radius: 8px;
-            border: 1px solid var(--border);
-            background-color: var(--bg-color);
-            color: var(--text-main);
+            border: 1px solid #d1d5db;
+            background-color: #ffffff;
+            color: #111827;
             font-size: 1rem;
         }
 
@@ -89,26 +79,22 @@
             padding: 12px;
             border: none;
             border-radius: 8px;
-            background-color: var(--primary);
-            color: #fff;
+            background-color: #009900;
+            color: #ffffff;
             font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            transition: background 0.2s;
+            transition: opacity 0.2s;
             margin-top: 10px;
         }
 
         button:hover {
-            background-color: var(--primary-hover);
+            opacity: 0.9;
         }
 
         .btn-secondary {
-            background-color: var(--secondary);
+            background-color: #374151;
             margin-top: 12px;
-        }
-
-        .btn-secondary:hover {
-            background-color: #475569;
         }
 
         .results {
@@ -120,8 +106,8 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background-color: var(--bg-color);
-            border: 1px solid var(--border);
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
             padding: 10px 14px;
             border-radius: 8px;
             margin-bottom: 8px;
@@ -135,12 +121,12 @@
             padding: 5px 10px;
             margin: 0 0 0 10px;
             font-size: 0.8rem;
-            background-color: var(--secondary);
+            background-color: #009900;
             flex-shrink: 0;
         }
 
         .error-msg {
-            color: #f87171;
+            color: #dc2626;
             font-size: 0.9rem;
             margin-top: 8px;
             display: none;
@@ -148,7 +134,7 @@
 
         footer {
             margin-top: 30px;
-            color: var(--text-muted);
+            color: #6b7280;
             font-size: 0.85rem;
             text-align: center;
         }
@@ -310,3 +296,16 @@
             pwList.appendChild(item);
         }
 
+        resultsBox.style.display = "block";
+    }
+
+    function downloadTxt() {
+        const website = document.getElementById("website").value.trim() || "Algemeen";
+        let inhoud = `--- ${website} ---\n`;
+        huidigeWachtwoorden.forEach(ww => inhoud += `${ww}\n`);
+
+        const blob = new Blob(Array.of(inhoud), { type: "text/plain;charset=utf-8" });
+        const link = document.createElement("a");
+        link.href = URL.createObjectURL(blob);
+        link.download = "wachtwoorden.txt";
+        link.click();
