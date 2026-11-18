@@ -127,14 +127,16 @@
             margin-bottom: 8px;
             font-family: monospace;
             font-size: 1.05rem;
+            word-break: break-all;
         }
 
         .copy-btn {
             width: auto;
             padding: 5px 10px;
-            margin: 0;
+            margin: 0 0 0 10px;
             font-size: 0.8rem;
             background-color: var(--secondary);
+            flex-shrink: 0;
         }
 
         .error-msg {
@@ -210,9 +212,9 @@
 <script>
     const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
     const numbers = "0123456789".split("");
-    const symbols = ['!', '#', '$', '%', '&', '(', ')', '*', '+'];
+    const symbols = Array.of('!', '#', '$', '%', '&', '(', ')', '*', '+');
 
-    let huidigeWachtwoorden = [];
+    let huidigeWachtwoorden = new Array();
 
     function toggleOpties() {
         const keuze = document.getElementById("keuze").value;
@@ -222,18 +224,20 @@
     function randomChoice(arr) {
         const randomBuffer = new Uint32Array(1);
         window.crypto.getRandomValues(randomBuffer);
-        return arr[randomBuffer[0] % arr.length];
+        return arr[randomBuffer.at(0) % arr.length];
     }
 
     function maakWachtwoord(aantalLetters, aantalNummers, aantalSymbolen) {
-        let placeholder = [];
+        let placeholder = new Array();
         for (let i = 0; i < aantalLetters; i++) placeholder.push(randomChoice(letters));
         for (let i = 0; i < aantalNummers; i++) placeholder.push(randomChoice(numbers));
         for (let i = 0; i < aantalSymbolen; i++) placeholder.push(randomChoice(symbols));
 
         for (let i = placeholder.length - 1; i > 0; i--) {
             const j = Math.floor(Math.random() * (i + 1));
-            [placeholder[i], placeholder[j]] = [placeholder[j], placeholder[i]];
+            const temp = placeholder.at(i);
+            placeholder.splice(i, 1, placeholder.at(j));
+            placeholder.splice(j, 1, temp);
         }
         return placeholder.join("");
     }
@@ -247,7 +251,7 @@
 
         errorMsg.style.display = "none";
         pwList.innerHTML = "";
-        huidigeWachtwoorden = [];
+        huidigeWachtwoorden = new Array();
 
         if (isNaN(aantal) || aantal < 1) {
             errorMsg.textContent = "Voer minstens 1 wachtwoord in...";
@@ -288,25 +292,21 @@
 
             const item = document.createElement("div");
             item.className = "pw-item";
-            item.innerHTML = `
-                <span>${i + 1}. ${ww}</span>
-                <button class="copy-btn" onclick="kopieerTekst('${ww}', this)">Kopieer</button>
-            `;
+            
+            const tekstSpan = document.createElement("span");
+            tekstSpan.textContent = `${i + 1}. ${ww}`;
+
+            const kopieerKnop = document.createElement("button");
+            kopieerKnop.className = "copy-btn";
+            kopieerKnop.textContent = "Kopieer";
+            kopieerKnop.onclick = function() {
+                navigator.clipboard.writeText(ww);
+                kopieerKnop.textContent = "Gekopieerd!";
+                setTimeout(() => kopieerKnop.textContent = "Kopieer", 1500);
+            };
+
+            item.appendChild(tekstSpan);
+            item.appendChild(kopieerKnop);
             pwList.appendChild(item);
         }
 
-        resultsBox.style.display = "block";
-    }
-
-    function kopieerTekst(tekst, knop) {
-        navigator.clipboard.writeText(tekst);
-        knop.textContent = "Gekopieerd!";
-        setTimeout(() => knop.textContent = "Kopieer", 1500);
-    }
-
-    function downloadTxt() {
-        const website = document.getElementById("website").value.trim() || "Algemeen";
-        let inhoud = `--- ${website} ---\n`;
-        huidigeWachtwoorden.forEach(ww => inhoud += `${ww}\n`);
-
-        const blob = new Blob([inhoud], { type: "text/plain;charset=utf-8" });
